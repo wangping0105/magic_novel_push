@@ -1,0 +1,17 @@
+defaults: &defaults
+  session:
+    domain: "*"
+  base:
+    host: "http://localhost:3000"
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+staging:
+  <<: *defaults
+
+production:
+  <<: *defaults

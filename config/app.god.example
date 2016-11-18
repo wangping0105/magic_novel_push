@@ -1,0 +1,83 @@
+APP_ROOT = File.expand_path(File.join(File.dirname(__FILE__),'..'))
+APP_ENV = 'production'
+
+2.times {|i|
+  port = (7140 + i)
+  God.watch do |w|
+    w.env = {
+      "BUNDLE_GEMFILE" => "#{APP_ROOT}/Gemfile",
+      "PID_FILE" => "#{APP_ROOT}/tmp/pids/thin.#{port}.pid",
+      "PORT" => port
+    }
+
+    w.dir = "#{APP_ROOT}"
+    w.log = "#{APP_ROOT}/log/god_#{APP_ENV}.log"
+
+    w.name = "ikcrm_faye_push_#{i}"
+    w.group = "ikcrm_push_production"
+
+    # w.start = "bundle exec thin start -o #{i} -C config/thin_server.yml"
+    w.start = "~/.rvm/bin/rvm in #{APP_ROOT} do bundle exec bundle exec thin start -C config/thin_server.yml"
+
+    # QUIT gracefully shuts down workers
+    w.stop = "~/.rvm/bin/rvm in #{APP_ROOT} do bundle exec thin stop -o #{i} -C config/thin_server.yml"
+
+    # USR2 causes the master to re-create itself and spawn a new worker pool
+    w.restart = "~/.rvm/bin/rvm in #{APP_ROOT} do bundle exec thin restart -o #{i} -C config/thin_server.yml"
+
+    w.pid_file = "#{w.env['PID_FILE']}"
+    w.log = "#{APP_ROOT}/log/god_#{APP_ENV}.log"
+
+    w.interval = 30.seconds # default
+    w.start_grace = 10.seconds
+    w.restart_grace = 10.seconds     # 重启缓冲时间
+    w.behavior(:clean_pid_file)
+
+    w.start_if do |start|
+      start.condition(:process_running) do |c|
+        c.interval = 5.seconds
+        c.running = false
+      end
+    end
+
+    # determine when process has finished starting
+    w.transition([:start, :restart], :up) do |on|
+      on.condition(:process_running) do |c|
+        c.running = true
+      end
+
+      # failsafe
+      on.condition(:tries) do |c|
+        c.times = 5
+        c.transition = :restart
+      end
+    end
+
+
+    w.restart_if do |restart|
+      restart.condition(:memory_usage) do |c|
+        c.above = 250.megabytes
+        c.times = [3, 5] # 3 out of 5 intervals
+      end
+
+      restart.condition(:cpu_usage) do |c|
+        c.above = 30.percent
+        c.times = [3, 5]
+      end
+
+      restart.condition(:http_response_code) do |c|
+        c.host = 'localhost'
+        c.port = w.env['PORT']
+        c.path = '/faye/client.js'
+        c.code_is_not = 200
+        c.timeout = 10.seconds
+        c.times = [3, 5]
+      end
+    end
+
+
+    # w.keepalive(:interval => 15.seconds,
+    #             :memory_max => 210.megabytes,
+    #             :cpu_max => 40.percent)
+  end
+}

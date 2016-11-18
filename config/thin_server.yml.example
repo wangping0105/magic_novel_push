@@ -1,0 +1,22 @@
+#http://michaelcarrano.com/blog/deploying-sinatra-app-on-digitalocean-with-nginx-and-thin
+---
+# user: ickrm_dev
+# group: ickrm_dev
+pid: tmp/pids/thin.pid
+address: 0.0.0.0
+port: 9595
+#socket: tmp/sockets/thin.sock
+rackup: config.ru
+
+timeout: 30
+wait: 30
+log: log/thin.log
+max_conns: 1024
+require: []
+environment: production
+max_persistent_conns: 512
+servers: 1
+onebyone: true
+daemonize: true
+
+# chdir: /dyne/apps/ikcrm_push_production

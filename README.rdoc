@@ -1,0 +1,102 @@
+== Ikcrm Push
+
+============
+
+this is an Notifier system for ikcrm
+
+- http://railscasts.com/episodes/260-messaging-with-faye?view=asciicast
+- http://michaelcarrano.com/blog/deploying-sinatra-app-on-digitalocean-with-nginx-and-thin
+- http://siriux.net/2013/06/nginx-and-websockets/
+
+== Getting Started
+
+get and config source code
+
+        git clone ssh://gitlab@gitlab.weiligongshe.com:40022/dyne/repos/ikcrm_push.git
+        cp config/database.yml.example config/database.yml
+        cp config/cross_sites.yml.example  config/cross_sites.yml
+        cp config/rabbitmq.yml.example config/rabbitmq.yml
+        # rake tmp:create
+        mkdir -p tmp/sockets tmp/cache tmp/sessions tmp/pids log
+        thin start -R config.ru -p 9595 -l log/thin.log --debug -V
+        #start
+
+== run
+
+
+        thin start -s 2 -C config/thin_server.yml -R config.ru
+        #restart
+        thin restart -C  config/thin_server.yml
+
+== deploy
+
+  http://nginx.org/en/linux_packages.html
+  sudo yum info nginx
+  sudo rpm -Uhv 'http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm'
+
+== Serving Faye over HTTPS (with Thin)
+
+Create a thin configuration file config/sync_thin.yml similar to the following:
+
+---
+port: 4443
+ssl: true
+ssl_key_file: /path/to/server.pem
+ssl_cert_file: /path/to/certificate_chain.pem
+environment: production
+rackup: sync.ru
+
+or refer [nginx-websocket-proxy](https://github.com/nicokaiser/nginx-websocket-proxy/blob/master/simple-wss.conf)
+
+== Notice
+
+rabbit_mq bunny connection yeild should not use sql connection to query data
+
+== Debugging
+
+  TODO
+
+
+== Debugger
+
+  TODO
+
+
+== Console
+
+- http://faye.jcoglan.com/ruby/clients.html
+- http://faye.jcoglan.com/browser.html
+
+
+curl localhost:9595/faye/client.js
+
+curl http://localhost:9595/faye -d 'message={[channel]("/messages/new",) [data]("hello")}'
+
+        # debug within terminal
+        APP_ENV=development bundle exec irb -r ./console.rb
+
+        require 'eventmachine'
+
+        EM.run {
+          client = Faye::Client.new('http://localhost:9595/faye')
+
+          client.subscribe('/messages') do |message|
+            puts message.inspect
+          end
+
+          client.publish('/messages', 'text' => 'Hello world')
+        }
+
+        var client = new Faye.Client('http://localhost:9595/faye');
+        client.subscribe('/messages', function(message) {
+          alert('Got a message: ' + message.text);
+        });
+
+
+== dbconsole
+
+  TODO
+
+== Document
+
+  [wiki](wiki/)

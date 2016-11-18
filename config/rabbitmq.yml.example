@@ -1,0 +1,23 @@
+development:
+  host: "localhost"
+  #host: "mq.payment.vcooline.com"
+  vhost: "ikcrm_development_vhost"
+  port: "5672"
+  username: "mquser"
+  password: "xxx.xxx.xxx"
+
+test:
+  host: "localhost"
+  #host: "mq.payment.vcooline.com"
+  vhost: "ikcrm_test_vhost"
+  port: "5672"
+  username: "mquser"
+  password: "xxx.xxx.xxx"
+
+production:
+  host: "localhost"
+  #host: "mq.payment.vcooline.com"
+  vhost: "ikcrm_development_vhost"
+  port: "5672"
+  username: "mquser"
+  password: "xxx.xxx.xxx"
