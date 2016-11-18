@@ -105,3 +105,5 @@ Ruby gem to handle settings for ActiveRecord instances by storing them as serial
 testing env
 
 database: vcooline_ikcrm_testing
+
+sudo ln -nfs /dyne/wp_apps/magic_novel_push_production/shared/config/nginx.conf /etc/nginx/conf.d/magic_novel_push_production.conf

@@ -1,52 +1,14 @@
+set :branch, :master
 set :stage, :production
 
 set :rails_env, :production
 
+# set :repo_url, 'git@github.com:wangping0105/magic_novel.git' # config/deploy.rb 已经配置了
+set :deploy_to, "/dyne/wp_apps/magic_novel_push_#{fetch :stage}"
 
-set :port, 40022
-set :repo_url, 'ssh://gitlab@gitlab.ikcrm.com:40022/ikcrm_server/ikcrm_push.git'
-set :deploy_to, "/dyne/apps/ikcrm_push_#{fetch :stage}"
+set :rvm_ruby_string, :local
 
-set :rvm_type, :user  # Literal ":user"
+server '120.55.180.128', user: 'dev', roles: %w{web app db}, my_property: :my_value
 
-# Simple Role Syntax
-# ==================
-# Supports bulk-adding hosts to roles, the primary server in each group
-# is considered to be the first unless any hosts have the primary
-# property set.  Don't declare `role :all`, it's a meta role.
-
-server 'faye.ikcrm.com', port: 40022, user: 'ikcrm_dev', roles: %w{web app db}, my_property: :my_value
-# server 'prod2.ikcrm.com', port: 40022, user: 'ikcrm_dev', roles: %w{web app db}, my_property: :my_value
-# Extended Server Syntax
-# ======================
-# This can be used to drop a more detailed server definition into the
-# server list. The second argument is a, or duck-types, Hash and is
-# used to set extended properties on the server.
-
-
-
-# Custom SSH Options
-# ==================
-# You may pass any option but keep in mind that net/ssh understands a
-# limited set of options, consult[net/ssh documentation](http://net-ssh.github.io/net-ssh/classes/Net/SSH.html#method-c-start).
-#
-# Global options
-# --------------
-#  set :ssh_options, {
-#    keys: %w(/home/rlisowski/.ssh/id_rsa),
-#    forward_agent: false,
-#    auth_methods: %w(password)
-#  }
-#
-# And/or per server (overrides global)
-# ------------------------------------
-# server 'example.com',
-#   user: 'user_name',
-#   roles: %w{web app},
-#   ssh_options: {
-#     user: 'user_name', # overrides user setting above
-#     keys: %w(/home/user_name/.ssh/id_rsa),
-#     forward_agent: false,
-#     auth_methods: %w(publickey password)
-#     # password: 'please use keys'
-#   }
+# 在 deploy/staging.rb 中设置 server 的时候一定要添加 web app db 三个 role，
+# 因为 capistrano-rails 的 precompile migrate 分别依赖于 web db 两个角色，否则是不会自动执行的

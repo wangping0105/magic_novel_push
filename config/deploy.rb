@@ -1,13 +1,13 @@
 # config valid only for Capistrano 3.4.0
 lock '>=3.6.0'
 
-set :application, 'ikcrm_push'
-set :repo_url, 'ssh://gitlab@gitlab.ikcrm.com:40022/ikcrm_server/ikcrm_push.git'
+set :application, 'magic_novel_push'
+set :repo_url, 'git@github.com:wangping0105/magic_novel_push.git'
 
 # deploy.rb or stage file (staging.rb, production.rb or else)
 set :rvm_type, :auto                     # Defaults to: :auto
 # set :rvm_ruby_version, '2.1.1-p76'      # Defaults to: 'default'
-set :rvm_ruby_version, '2.3.0'
+# set :rvm_ruby_version, '2.3.0'
 # set :rvm_custom_path, '~/.myveryownrvm'  # only needed if not detected
 
 
@@ -31,7 +31,7 @@ set :rvm_ruby_version, '2.3.0'
 
 # Default value for :linked_files is []
 # set :linked_files, %w{config/database.yml}
-set :linked_files, %W{config/app.god config/logrotate.conf config/cross_sites.yml config/rabbitmq.yml config/nginx.conf config/thin_server.yml config/redis.yml config/newrelic.yml}
+set :linked_files, %W{config/app.god config/cross_sites.yml config/nginx.conf config/thin_server.yml config/redis.yml}
 
 # Default value for linked_dirs is []
 # set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
@@ -55,7 +55,7 @@ namespace :deploy do
       #   execute :rake, 'cache:clear'
       # end
       within release_path do
-        execute :bundle, 'exec thin start -C config/thin_server.yml'
+        execute :bundle, 'exec thin start -C config/thin_server.yml -R config.ru'
       end
     end
   end
@@ -68,7 +68,7 @@ namespace :deploy do
       #   execute :rake, 'cache:clear'
       # end
       within release_path do
-        execute :bundle, 'exec thin stop -C config/thin_server.yml'
+        execute :bundle, 'exec thin stop -C config/thin_server.yml -R config.ru'
       end
     end
   end
@@ -81,7 +81,7 @@ namespace :deploy do
       #   execute :rake, 'cache:clear'
       # end
       within release_path do
-        execute :bundle, 'exec thin restart -C config/thin_server.yml'
+        execute :bundle, 'exec thin restart -C config/thin_server.yml -R config.ru'
       end
     end
   end
